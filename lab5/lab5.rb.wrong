@@ -1,0 +1,238 @@
+#!/usr/bin/env ruby
+
+exitProgram = false
+error = false
+begin
+  if error == false
+    puts "Welcome to Ruby's File System"
+    puts "*" * 25
+    puts "Main Menu:"
+    puts "1. Create a File"
+    puts "2. Create a Directory"
+    puts "3. Create a Link"
+    puts "4. Remove File/Directory/Link"
+    puts "5. Display File System"
+    puts "6. Exit"
+  end
+  userChoice = gets.chomp
+  userChoice = userChoice.to_i
+  if userChoice == 1
+    puts "Please enter a File name or quit: "
+    fileName = gets.chomp
+    if fileName == "quit"
+      exit
+    end
+    puts "Please enter a parent direcory or quit: "
+    parentDir = gets.chomp
+    if parentDir == "quit"
+      exit
+    end
+    if parentDir[parentDir.size-1] == "/"
+      fileName = parentDir + fileName
+    else
+      fileName = parentDir + "/" + fileName
+    end
+    `touch #{fileName} 2> errors.txt`
+    if !File.zero?("errors.txt")
+      puts "ERROR: Parent Direcory Does not Exist"
+      breakFlag = true
+    end
+    `rm -f errors.txt`
+    if breakFlag
+      break
+    end
+    puts "Please enter access permissions using format rwx or quit: "
+    filePerm = gets.chomp
+    if filePerm == "quit"
+      exit
+    end
+    ownerPerm = 0
+    if filePerm[0] != "-"
+      ownerPerm = ownerPerm + 400
+    end
+    if filePerm[1] != "-"
+      ownerPerm = ownerPerm + 200
+    end
+    if filePerm[2] != "-"
+      ownerPerm = ownerPerm + 100
+    end
+    `chmod #{ownerPerm} #{fileName}`
+    puts "Created Direcory: #{fileName}"
+
+  elsif userChoice == 2
+    puts "Please enter a Directory name or quit: "
+    dirName = gets.chomp
+    if fileName == "quit"
+      exit
+    end
+    puts "Please enter a parent direcory or quit: "
+    parentDir = gets.chomp
+    if parentDir == "quit"
+      exit
+    end
+    puts "Please enter access permissions using format rwx or quit: "
+    dirPerm = gets.chomp
+    if dirPerm == "quit"
+      exit
+    end
+    if parentDir[parentDir.size-1] == "/"
+      dirName = parentDir + dirName
+    else
+      dirName = parentDir + "/" + dirName
+    end
+    `mkdir #{dirName}`
+    ownerPerm = 0
+    if dirPerm[0] != "-"
+      ownerPerm = ownerPerm + 400
+    end
+    if dirPerm[1] != "-"
+      ownerPerm = ownerPerm + 200
+    end
+    if dirPerm[2] != "-"
+      ownerPerm = ownerPerm + 100
+    end
+    `chmod #{ownerPerm} #{dirName}`
+    puts "Created Direcory: #{dirName}"
+  elsif userChoice == 3
+    # Target info
+    puts "Please enter the target name or quit: "
+    targetName = gets.chomp
+    if targetName == "quit"
+      exit
+    end
+    puts "Please enter the targets parent direcory or quit: "
+    targParentDir = gets.chomp
+    if targParentDir == "quit"
+      exit
+    end
+    if targParentDir[targParentDir.size-1] == "/"
+      targetName = targParentDir + targetName
+    else
+      targetName = targParentDir + "/" + targetName
+    end
+    # Link info
+    puts "Please enter the link name or quit: "
+    linkName = gets.chomp
+    if linkName == "quit"
+      exit
+    end
+    puts "Please enter the links parent direcory or quit: "
+    linkParentDir = gets.chomp
+    if linkParentDir == "quit"
+      exit
+    end
+    if linkParentDir[linkParentDir.size-1] == "/"
+      linkName = linkParentDir + linkName
+    else
+      linkName = linkParentDir + "/" + linkName
+    end
+
+    `link  #{targetName} #{linkName} 2> errors.txt`
+    if !File.zero?("errors.txt")
+      puts "ERROR: Parent Direcory Does not Exist"
+      breakFlag = true
+    end
+    `rm -f errors.txt`
+    if breakFlag
+      break
+    end
+    puts "Created Link: #{linkName}"
+  elsif userChoice == 4
+    puts "1. Remove File"
+    puts "2. Remove Directory"
+    puts "3. Remove Link"
+    userChoice = gets.chomp
+    if userChoice == 1
+      puts "Please enter a File name or quit: "
+      fileName = gets.chomp
+      if fileName == "quit"
+        exit
+      end
+      puts "Please enter a parent direcory or quit: "
+      parentDir = gets.chomp
+      if parentDir == "quit"
+        exit
+      end
+      if parentDir[parentDir.size-1] == "/"
+        fileName = parentDir + fileName
+      else
+        fileName = parentDir + "/" + fileName
+      end
+      `rm #{fileName} 2> errors.txt`
+      if !File.zero?("errors.txt")
+        puts "ERROR: Parent Direcory or File Does not Exist"
+      end
+      `rm -f errors.txt`
+    elsif userChoice == 2
+      puts "Please enter the Directory name or quit: "
+      dirName = gets.chomp
+      if dirName == "quit"
+        exit
+      end
+      puts "Please enter a parent direcory or quit: "
+      parentDir = gets.chomp
+      if parentDir == "quit"
+        exit
+      end
+      if parentDir[parentDir.size-1] == "/"
+        dirName = parentDir + dirName
+      else
+        dirName = parentDir + "/" + dirName
+      end
+      `rm -r #{dirName} 2> errors.txt`
+      if !File.zero?("errors.txt")
+        puts "ERROR: Parent Direcory or Directory Does not Exist"
+      end
+      `rm -f errors.txt`
+    elsif userChoice == 3
+      puts "Please enter a Link name or quit: "
+      linkName = gets.chomp
+      if linkName == "quit"
+        exit
+      end
+      puts "Please enter a parent direcory or quit: "
+      parentDir = gets.chomp
+      if parentDir == "quit"
+        exit
+      end
+      if parentDir[parentDir.size-1] == "/"
+        linkName = parentDir + linkName
+      else
+        linkName = parentDir + "/" + linkName
+      end
+      `rm #{linkName} 2> errors.txt`
+      if !File.zero?("errors.txt")
+        puts "ERROR: Parent Direcory or Link Does not Exist"
+      end
+      `rm -f errors.txt`
+    end
+  elsif userChoice == 5
+    puts "Please enter a directory to view, '.' for current: "
+    dir = gets.chomp
+    def print_dir(indent = 0, dir)
+      Dir.foreach("#{dir}"){ |x|
+        puts "   " * indent
+        if File.directory?("#{x}")
+          print_dir(indent+1, x)
+        end
+        puts x
+      }
+    end
+  elsif userChoice == 6
+    puts "Goodbye!"
+    puts "*" * 25
+    exit
+  else
+    puts "ERROR: Try again: "
+    error = true
+  end
+end until exitProgram
+
+
+
+
+
+
+
+
+
