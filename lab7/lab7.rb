@@ -1,7 +1,9 @@
 #!/usr/bin/env ruby
 
 require 'csv'
-  
+
+t1 = Time.now
+
 films = CSV.read('Film.csv', 'r:ISO-8859-1', { headers: true, return_headers: true })
 movies = CSV.read('Movies.csv', 'r:ISO-8859-1', { headers: true, return_headers: true })
 
@@ -27,25 +29,42 @@ movies.delete('r10')
 movies.delete('mpaa')
 movies.delete('id')
 
+i = 0
 CSV.open('FilmMovies.csv', 'w') do |csv|
+header = false
   films.each do |film|
     movies.each do |movie|
       if film[0] == movie[1] && film[1] == movie[2] && film[2] == movie[0]
-        input = Array.new
+        if !header
+          put_header = Array.new
+        end
+        output = Array.new
         film.each do |item|
-          input.push(item)
+          if !header
+            put_header.push(item[0])
+          end
+          output.push(item[1])
         end
         movie.delete(film[0])
         movie.delete(film[1])
         movie.delete(film[2])
         movie.each do |item|
-          input.push(item)
+          if !header
+            put_header.push(item[0])
+          end
+          output.push(item[1])
         end
-        csv << input
+        if !header
+          csv << put_header
+          header = true
+        end
+        csv << output
+        i = i+1
+        puts "Still working... #{i}"
       end
     end
   end
 end
 
-
-
+t2 = Time.now
+puts (t2 - t1)
